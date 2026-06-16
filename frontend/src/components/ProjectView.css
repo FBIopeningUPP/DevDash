@@ -1,0 +1,186 @@
+.project-view {
+  max-width: 900px;
+}
+
+.project-header {
+  margin-bottom: 32px;
+}
+
+.project-name {
+  font-size: 22px;
+  font-weight: 600;
+  color: var(--text-primary);
+  letter-spacing: -0.3px;
+}
+
+.project-path {
+  font-size: 12px;
+  color: var(--text-secondary);
+  font-family: var(--font-mono);
+  margin-top: 4px;
+}
+
+.project-meta {
+  display: flex;
+  gap: 8px;
+  margin-top: 12px;
+}
+
+.project-section {
+  margin-bottom: 32px;
+}
+
+.section-title {
+  font-size: 13px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: var(--text-tertiary);
+  margin-bottom: 12px;
+}
+
+.section-empty {
+  font-size: 13px;
+  color: var(--text-tertiary);
+}
+
+/* Quick Actions */
+.quick-actions {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.quick-action-card {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 12px 16px;
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-md);
+  background-color: var(--bg-surface);
+  min-width: 200px;
+  flex: 1;
+  transition: border-color 150ms ease, box-shadow 150ms ease;
+}
+
+.quick-action-card:hover {
+  border-color: var(--text-tertiary);
+  box-shadow: var(--shadow-sm);
+}
+
+.quick-action-running {
+  border-left: 3px solid var(--success);
+  background-color: var(--success-light);
+}
+
+.quick-action-info {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.quick-action-label {
+  font-weight: 600;
+  font-size: 13px;
+  color: var(--text-primary);
+}
+
+.quick-action-desc {
+  font-size: 11px;
+  color: var(--text-tertiary);
+  font-family: var(--font-mono);
+}
+
+.quick-action-controls {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-shrink: 0;
+}
+
+/* Scripts grid */
+.scripts-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+}
+
+.script-card {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 16px;
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-md);
+  background-color: var(--bg-surface);
+  transition: border-color 150ms ease;
+}
+
+.script-card:hover {
+  border-color: var(--text-tertiary);
+}
+
+.script-card-running {
+  border-left: 3px solid var(--success);
+}
+
+.script-info {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+
+.script-name {
+  font-weight: 500;
+  font-family: var(--font-mono);
+  font-size: 13px;
+  color: var(--text-primary);
+}
+
+.script-command {
+  font-size: 11px;
+  color: var(--text-tertiary);
+  font-family: var(--font-mono);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 200px;
+}
+
+.script-actions {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-shrink: 0;
+}
+
+/* Terminal tabs */
+.terminal-tabs {
+  display: flex;
+  gap: 2px;
+  margin-bottom: 8px;
+}
+
+.terminal-tab {
+  padding: 6px 14px;
+  border: none;
+  background-color: var(--bg-surface-hover);
+  border-radius: var(--radius-sm) var(--radius-sm) 0 0;
+  font-family: var(--font-mono);
+  font-size: 12px;
+  cursor: pointer;
+  color: var(--text-secondary);
+  transition: all 150ms ease;
+}
+
+.terminal-tab.active {
+  background-color: var(--terminal-bg);
+  color: var(--terminal-text);
+}
+
+.terminal-tab:hover:not(.active) {
+  background-color: var(--border-color);
+}

@@ -1,0 +1,134 @@
+.running-instances {
+  max-width: 900px;
+}
+
+.instances-header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 24px;
+}
+
+.instances-title {
+  font-size: 22px;
+  font-weight: 600;
+  color: var(--text-primary);
+  letter-spacing: -0.3px;
+}
+
+/* Empty state */
+.instances-empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 64px 0;
+  text-align: center;
+  color: var(--text-secondary);
+}
+
+.instances-empty-icon {
+  font-size: 40px;
+  margin-bottom: 12px;
+}
+
+.instances-empty p {
+  font-size: 14px;
+  margin-bottom: 4px;
+}
+
+.instances-empty-hint {
+  font-size: 12px;
+  color: var(--text-tertiary);
+}
+
+/* Instance list */
+.instances-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.instance-card {
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-md);
+  background-color: var(--bg-surface);
+  overflow: hidden;
+}
+
+.instance-main {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px 20px;
+}
+
+.instance-info {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.instance-project-link {
+  border: none;
+  background: none;
+  padding: 0;
+  font-family: var(--font-sans);
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--accent);
+  cursor: pointer;
+  text-align: left;
+}
+
+.instance-project-link:hover {
+  text-decoration: underline;
+}
+
+.instance-script {
+  font-family: var(--font-mono);
+  font-size: 13px;
+  color: var(--text-primary);
+}
+
+.instance-details {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-top: 2px;
+}
+
+.instance-detail {
+  font-size: 11px;
+  color: var(--text-tertiary);
+}
+
+.instance-detail-sep {
+  font-size: 11px;
+  color: var(--text-tertiary);
+}
+
+.instance-uptime {
+  font-size: 11px;
+  color: var(--text-tertiary);
+  font-family: var(--font-mono);
+}
+
+.instance-actions {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-shrink: 0;
+}
+
+.instance-terminal {
+  border-top: 1px solid var(--border-light);
+}
+
+.instance-terminal .terminal {
+  border-radius: 0;
+}
+
+.instance-terminal .terminal-output {
+  max-height: 250px;
+}
