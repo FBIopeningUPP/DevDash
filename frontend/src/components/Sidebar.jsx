@@ -7,7 +7,9 @@ export default function Sidebar({
   onAddProject,
   onShowInstances,
   activeTab,
-  runningProcesses
+  runningProcesses,
+  theme,
+  onThemeChange
 }) {
   const runningCount = runningProcesses.length
 
@@ -58,6 +60,29 @@ export default function Sidebar({
               </span>
             </button>
           ))}
+        </div>
+      </div>
+
+      <div className="sidebar-footer">
+        <div className="sidebar-divider" />
+        <div className="sidebar-section">
+          <div className="sidebar-section-header">
+            <span className="sidebar-section-title">Theme</span>
+          </div>
+          <div className="theme-switcher">
+            <select
+              id="theme-switcher"
+              value={theme}
+              onChange={(e) => onThemeChange(e.target.value)}
+              className="theme-select"
+            >
+              <option value="light">Light</option>
+              <option value="dark">Dark</option>
+              <option value="dracula">Dracula</option>
+              <option value="nord">Nord</option>
+              <option value="monokai">Monokai</option>
+            </select>
+          </div>
         </div>
       </div>
     </aside>

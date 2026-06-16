@@ -8,10 +8,6 @@ export default function Terminal({ processId, socket }) {
   const scrollRef = useRef(null)
 
   useEffect(() => {
-    setLines([])
-    setExited(false)
-    setExitCode(null)
-
     if (!socket || !processId) return
 
     socket.emit('join', `process:${processId}`)

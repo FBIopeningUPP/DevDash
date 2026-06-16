@@ -112,7 +112,7 @@ export default function RunningInstances({
 
               {expandedId === proc.id && (
                 <div className="instance-terminal">
-                  <Terminal processId={proc.id} socket={socket} />
+                  <Terminal key={proc.id} processId={proc.id} socket={socket} />
                 </div>
               )}
             </div>

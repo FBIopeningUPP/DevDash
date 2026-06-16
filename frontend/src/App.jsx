@@ -13,6 +13,29 @@ export default function App() {
   const [processes, setProcesses] = useState({})
   const [showAddModal, setShowAddModal] = useState(false)
   const [activeTab, setActiveTab] = useState('project')
+  const [portConflict, setPortConflict] = useState(null)
+  const [theme, setTheme] = useState(() => {
+    let savedTheme = null
+    try {
+      savedTheme = localStorage.getItem('devdash-theme')
+    } catch (e) {
+      console.error('Failed to get theme from localStorage:', e)
+    }
+    const whitelist = ['light', 'dark', 'dracula', 'nord', 'monokai']
+    if (savedTheme && whitelist.includes(savedTheme)) {
+      return savedTheme
+    }
+    return 'light'
+  })
+
+  useEffect(() => {
+    document.body.setAttribute('data-theme', theme)
+    try {
+      localStorage.setItem('devdash-theme', theme)
+    } catch (e) {
+      console.error('Failed to set theme in localStorage:', e)
+    }
+  }, [theme])
 
   const fetchProjects = useCallback(async () => {
     try {
@@ -41,8 +64,16 @@ export default function App() {
   }, [])
 
   useEffect(() => {
-    fetchProjects()
-    fetchProcesses()
+    let active = true
+    const init = async () => {
+      if (!active) return
+      await fetchProjects()
+      await fetchProcesses()
+    }
+    init()
+    return () => {
+      active = false
+    }
   }, [fetchProjects, fetchProcesses])
 
   useEffect(() => {
@@ -87,11 +118,16 @@ export default function App() {
       setProcesses(processMap)
     })
 
+    socket.on('process:port-conflict', (data) => {
+      setPortConflict(data)
+    })
+
     return () => {
       socket.off('process:started')
       socket.off('process:exit')
       socket.off('process:stopped')
       socket.off('processes:update')
+      socket.off('process:port-conflict')
     }
   }, [])
 
@@ -147,6 +183,22 @@ export default function App() {
     }
   }
 
+  const resolvePortConflict = async () => {
+    if (!portConflict) return
+    try {
+      await fetch('/api/kill-port', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ port: portConflict.port })
+      })
+      await new Promise(r => setTimeout(r, 1000))
+      await handleRestartProcess(portConflict.processId)
+      setPortConflict(null)
+    } catch (err) {
+      console.error('Failed to resolve port conflict:', err)
+    }
+  }
+
   const handleProjectAdded = (project) => {
     setProjects(prev => [...prev, project])
     setSelectedProjectId(project.id)
@@ -175,9 +227,26 @@ export default function App() {
         onShowInstances={handleShowInstances}
         activeTab={activeTab}
         runningProcesses={runningProcesses}
+        theme={theme}
+        onThemeChange={setTheme}
       />
 
       <main className="main-content">
+        {portConflict && (
+          <div style={{ padding: '16px', margin: '16px', backgroundColor: 'var(--danger-light)', border: '1px solid var(--danger)', borderRadius: 'var(--radius-md)', color: 'var(--danger)' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+              <div>
+                <strong>Port Conflict Detected!</strong>
+                <p style={{ margin: '4px 0 0 0', fontSize: '13px' }}>Port {portConflict.port} is already in use by another process.</p>
+              </div>
+              <div style={{ display: 'flex', gap: '8px' }}>
+                <button className="btn btn-ghost btn-sm" onClick={() => setPortConflict(null)}>Dismiss</button>
+                <button className="btn btn-danger btn-sm" onClick={resolvePortConflict}>Kill Process & Restart</button>
+              </div>
+            </div>
+          </div>
+        )}
+
         {activeTab === 'instances' ? (
           <RunningInstances
             processes={runningProcesses}

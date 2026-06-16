@@ -35,7 +35,7 @@ export default function AddProjectModal({ isOpen, onClose, onProjectAdded }) {
       setPath('')
       setError('')
       onProjectAdded(data)
-    } catch (err) {
+    } catch {
       setError('Failed to connect to server')
     } finally {
       setLoading(false)

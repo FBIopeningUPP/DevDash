@@ -283,6 +283,18 @@ app.post('/api/projects/:id/start', (req, res) => {
         data: text,
         type: 'stderr',
       });
+      if (text.includes('EADDRINUSE')) {
+        let port = null;
+        const match1 = text.match(/EADDRINUSE.*?(\d{4,5})/);
+        if (match1) port = parseInt(match1[1]);
+        else {
+          const match2 = text.match(/:(\d{4,5})/);
+          if (match2) port = parseInt(match2[1]);
+        }
+        if (port) {
+          io.to(`process:${processId}`).emit('process:port-conflict', { processId, port });
+        }
+      }
     });
 
     // Handle exit
@@ -423,6 +435,106 @@ app.post('/api/processes/:processId/restart', async (req, res) => {
   } catch (err) {
     console.error('[api] Error restarting process:', err.message);
     res.status(500).json({ error: 'Failed to restart process' });
+  }
+});
+
+// ---------------------------------------------------------------------------
+// Editor & Git Integrations
+// ---------------------------------------------------------------------------
+
+// POST /api/projects/:id/open
+app.post('/api/projects/:id/open', (req, res) => {
+  const { id } = req.params;
+  const projects = readProjects();
+  const project = projects.find((p) => p.id === id);
+  if (!project) return res.status(404).json({ error: 'Project not found' });
+  
+  const { exec } = require('child_process');
+  exec('code .', { cwd: project.path }, (err) => {
+    if (err) return res.status(500).json({ error: 'Failed to open VS Code' });
+    res.json({ message: 'Opened in VS Code' });
+  });
+});
+
+// GET /api/projects/:id/git
+app.get('/api/projects/:id/git', (req, res) => {
+  const { id } = req.params;
+  const projects = readProjects();
+  const project = projects.find((p) => p.id === id);
+  if (!project) return res.status(404).json({ error: 'Project not found' });
+
+  const { exec } = require('child_process');
+  exec('git branch --show-current', { cwd: project.path }, (err, branchStdout) => {
+    if (err) {
+      return res.json({ branch: null, uncommitted: 0 });
+    }
+    const branch = branchStdout.trim();
+    exec('git status -s', { cwd: project.path }, (err2, statusStdout) => {
+      let uncommitted = 0;
+      if (!err2) {
+        uncommitted = statusStdout.trim().split('\n').filter(l => l.trim().length > 0).length;
+      }
+      res.json({ branch, uncommitted });
+    });
+  });
+});
+
+// GET /api/projects/:id/env
+app.get('/api/projects/:id/env', (req, res) => {
+  const { id } = req.params;
+  const project = readProjects().find((p) => p.id === id);
+  if (!project) return res.status(404).json({ error: 'Project not found' });
+  const envPath = path.join(project.path, '.env');
+  try {
+    const content = fs.readFileSync(envPath, 'utf-8');
+    res.json({ content });
+  } catch {
+    res.json({ content: '' });
+  }
+});
+
+// POST /api/projects/:id/env
+app.post('/api/projects/:id/env', (req, res) => {
+  const { id } = req.params;
+  const { content } = req.body;
+  const project = readProjects().find((p) => p.id === id);
+  if (!project) return res.status(404).json({ error: 'Project not found' });
+  const envPath = path.join(project.path, '.env');
+  try {
+    fs.writeFileSync(envPath, content || '', 'utf-8');
+    res.json({ message: 'Saved' });
+  } catch (err) {
+    res.status(500).json({ error: 'Failed to save' });
+  }
+});
+
+// GET /api/projects/:id/dependencies/outdated
+app.get('/api/projects/:id/dependencies/outdated', (req, res) => {
+  const { id } = req.params;
+  const project = readProjects().find((p) => p.id === id);
+  if (!project) return res.status(404).json({ error: 'Project not found' });
+  
+  const { exec } = require('child_process');
+  exec('npm outdated --json', { cwd: project.path }, (err, stdout) => {
+    try {
+      const data = JSON.parse(stdout || '{}');
+      res.json(data);
+    } catch {
+      res.json({});
+    }
+  });
+});
+
+// POST /api/kill-port
+app.post('/api/kill-port', async (req, res) => {
+  const { port } = req.body;
+  if (!port) return res.status(400).json({ error: 'Port required' });
+  const killPort = require('kill-port');
+  try {
+    await killPort(port);
+    res.json({ message: `Port ${port} killed` });
+  } catch (err) {
+    res.status(500).json({ error: 'Failed to kill port' });
   }
 });
 
