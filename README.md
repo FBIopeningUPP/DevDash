@@ -11,7 +11,10 @@ DevDash is a unified desktop dashboard for managing all your Node.js, React, and
 - **Auto-Discovery**: Automatically parses `package.json` to extract scripts and dependency counts.
 - **Process Management**: Start, stop, and restart development servers (`dev`, `build`, etc.) with a single click.
 - **Real-Time Terminal Logs**: Streams `stdout` and `stderr` directly into the UI via WebSockets.
+- **Multiple Themes**: Includes carefully curated themes (Light, Dark, Dracula, Nord, Monokai) tailored to different developer aesthetics.
 - **Port Conflict Detection**: Automatically detects `EADDRINUSE` errors and offers a one-click "Kill Port" button to free up occupied ports.
+- **Single-Instance Lock**: Prevents duplicate app instances from running; opening the app again seamlessly brings your existing dashboard to the front.
+- **System Tray Integration**: Clicking the 'X' hides the app to your system tray so processes keep running silently in the background. Right-click the tray icon to fully quit.
 - **Quick IDE Access**: Open any project directly in Visual Studio Code from the dashboard.
 - **Git Integration**: View the current Git branch and uncommitted changes count.
 - **Environment Editor**: View and edit `.env` files directly from the UI.
