@@ -1,53 +1,61 @@
 # DevDash
 
-DevDash is a unified dashboard for managing all your Node.js, React, and TypeScript projects. It allows you to import projects, view available scripts, start/stop local development servers, and view real-time terminal outputs in a clean, professional interface.
+DevDash is a unified desktop dashboard for managing all your Node.js, React, and TypeScript projects. It operates as a local Electron application that lives in your system tray, allowing you to import projects, view available scripts, start/stop local development servers, and stream real-time terminal outputs in a clean, professional, and dynamic dark-mode interface.
+
+![DevDash Interface](./electron/icon.png)
 
 ## Features
 
-- **Project Management**: Add projects by their absolute path.
-- **Auto-Discovery**: Automatically parses `package.json` to find scripts and dependencies.
-- **Process Management**: Start, stop, and restart development servers and scripts with a click.
-- **Quick Actions**: Prominent buttons for common commands like `dev`, `start`, `build`, and `install`.
-- **Real-Time Logs**: View `stdout` and `stderr` directly in the dashboard via Socket.IO.
-- **Global Overview**: See all running instances across different projects in one place.
+- **Desktop Native App**: Runs seamlessly in the background and lives in your system tray for quick access.
+- **Project Management**: Add any Node/JS/TS projects by their local path.
+- **Auto-Discovery**: Automatically parses `package.json` to extract scripts and dependency counts.
+- **Process Management**: Start, stop, and restart development servers (`dev`, `build`, etc.) with a single click.
+- **Real-Time Terminal Logs**: Streams `stdout` and `stderr` directly into the UI via WebSockets.
+- **Port Conflict Detection**: Automatically detects `EADDRINUSE` errors and offers a one-click "Kill Port" button to free up occupied ports.
+- **Quick IDE Access**: Open any project directly in Visual Studio Code from the dashboard.
+- **Git Integration**: View the current Git branch and uncommitted changes count.
+- **Environment Editor**: View and edit `.env` files directly from the UI.
 
 ## Architecture
 
-The application is built with:
-- **Backend**: Node.js + Express + Socket.IO (Port 4000)
-- **Frontend**: React + Vite (Port 5173)
+DevDash is a monolithic repository combining three main layers:
+- **Electron**: Handles native OS interactions, system tray integration, and packaging.
+- **Backend**: Node.js + Express + Socket.IO server that proxies commands and monitors child processes.
+- **Frontend**: React + Vite single-page application tailored with modern, responsive CSS styling.
 
-## Quick Start
+## Getting Started
 
 ### Prerequisites
 - Node.js (v18+ recommended)
-- npm or yarn
+- npm
 
-### Installation
+### Installation for Development
 1. Clone this repository.
-2. Install backend dependencies:
+2. Install all dependencies from the root directory:
    ```bash
-   cd backend
    npm install
    ```
-3. Install frontend dependencies:
-   ```bash
-   cd ../frontend
-   npm install
-   ```
+   *(Note: This uses a `postinstall` hook to automatically install the `backend` and `frontend` dependencies).*
 
-### Running the App
-For Windows users, simply run the included batch script:
+3. Run the application in development mode:
+   ```bash
+   npm run dev
+   ```
+   This command starts the Node.js backend, fires up the Vite frontend server, and launches the Electron wrapper seamlessly.
+
+## Building for Production
+
+DevDash can be compiled into a single-file `.exe` Portable App (no installation required) using `electron-builder`.
+
+To build the executable:
 ```bash
-start-devdash.bat
+npm run build
 ```
-This will open two terminal windows and start both the backend API and frontend UI.
 
-Alternatively, you can start them manually:
-1. Start the backend: `cd backend && npm start`
-2. Start the frontend: `cd frontend && npm run dev`
+Once the build finishes, you will find `DevDash-Portable.exe` in the `release/` directory.
 
-Then, open [http://localhost:5173](http://localhost:5173) in your browser.
+> **Note on Data Storage:**
+> In production, your project configurations and data are safely persisted in your system's native AppData directory (e.g., `C:\Users\<User>\AppData\Roaming\devdash\data`).
 
-## Data Storage
-Your projects are saved in `backend/data/projects.json`. This file is ignored by Git, so your local project paths remain private.
+## License
+MIT License

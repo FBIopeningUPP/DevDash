@@ -1,5 +1,56 @@
 {
+  "name": "devdash",
+  "version": "2.0.0",
+  "description": "DevDash — A developer project manager and process dashboard",
+  "main": "electron/main.js",
+  "author": "FBIopeningUPP",
+  "license": "MIT",
+  "scripts": {
+    "dev": "concurrently -n \"backend,frontend,electron\" -c \"yellow,cyan,magenta\" \"node backend/server.js\" \"cd frontend && npm run dev\" \"wait-on http://localhost:5173 && electron .\"",
+    "build:frontend": "cd frontend && npm run build",
+    "build": "npm run build:frontend && electron-builder --win",
+    "pack": "npm run build:frontend && electron-builder --win --dir",
+    "postinstall": "cd backend && npm install && cd ../frontend && npm install"
+  },
   "dependencies": {
-    "puppeteer": "^25.1.0"
+    "cors": "^2.8.5",
+    "express": "^4.21.0",
+    "kill-port": "^2.0.1",
+    "socket.io": "^4.7.5",
+    "tree-kill": "^1.2.2",
+    "uuid": "^10.0.0"
+  },
+  "devDependencies": {
+    "concurrently": "^9.1.2",
+    "electron": "^36.4.0",
+    "electron-builder": "^26.0.12",
+    "wait-on": "^8.0.3"
+  },
+  "build": {
+    "appId": "com.devdash.app",
+    "productName": "DevDash",
+    "directories": {
+      "output": "release"
+    },
+    "files": [
+      "electron/**/*",
+      "backend/**/*",
+      "dist-frontend/**/*",
+      "!**/node_modules/.cache/**"
+    ],
+    "extraResources": [
+      {
+        "from": "backend/node_modules",
+        "to": "backend/node_modules",
+        "filter": ["**/*"]
+      }
+    ],
+    "win": {
+      "target": ["portable"],
+      "icon": "electron/icon.png"
+    },
+    "portable": {
+      "artifactName": "DevDash-Portable.exe"
+    }
   }
 }

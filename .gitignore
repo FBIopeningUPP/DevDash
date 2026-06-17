@@ -33,3 +33,9 @@ backend/data/projects.json
 .env.development.local
 .env.test.local
 .env.production.local
+
+# Electron
+dist-frontend
+dist-electron
+release
+out

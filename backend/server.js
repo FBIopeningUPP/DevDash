@@ -12,17 +12,45 @@ const treeKill = require('tree-kill');
 // App & Server Setup
 // ---------------------------------------------------------------------------
 
+const ALLOWED_ORIGINS = [
+  'http://localhost:5173',
+  'http://localhost:4000',
+  'file://',
+];
+
 const app = express();
 const server = http.createServer(app);
 const io = new Server(server, {
   cors: {
-    origin: 'http://localhost:5173',
+    origin: (origin, callback) => {
+      // Allow requests with no origin (Electron, curl, etc.)
+      if (!origin || ALLOWED_ORIGINS.some(o => origin.startsWith(o))) {
+        callback(null, true);
+      } else {
+        callback(null, true); // Be permissive for local dev tool
+      }
+    },
     methods: ['GET', 'POST', 'DELETE'],
   },
 });
 
-app.use(cors({ origin: 'http://localhost:5173' }));
+app.use(cors({
+  origin: (origin, callback) => {
+    callback(null, true);
+  },
+}));
 app.use(express.json());
+
+// In production (Electron packaged), serve the built frontend
+const distFrontendPath = path.join(__dirname, '..', 'dist-frontend');
+console.log('[server] Checking dist-frontend path:', distFrontendPath);
+console.log('[server] dist-frontend exists:', fs.existsSync(distFrontendPath));
+
+if (fs.existsSync(distFrontendPath)) {
+  app.use(express.static(distFrontendPath));
+} else {
+  console.error('[server] WARNING: dist-frontend directory not found!');
+}
 
 const PORT = 4000;
 
@@ -30,13 +58,18 @@ const PORT = 4000;
 // Data persistence helpers
 // ---------------------------------------------------------------------------
 
-const DATA_DIR = path.join(__dirname, 'data');
-const PROJECTS_FILE = path.join(DATA_DIR, 'projects.json');
+let DATA_DIR = path.join(__dirname, 'data');
+let PROJECTS_FILE = path.join(DATA_DIR, 'projects.json');
+
+function setDataDir(customPath) {
+  DATA_DIR = customPath;
+  PROJECTS_FILE = path.join(DATA_DIR, 'projects.json');
+}
 
 function ensureDataDir() {
   if (!fs.existsSync(DATA_DIR)) {
     fs.mkdirSync(DATA_DIR, { recursive: true });
-    console.log('[data] Created data/ directory');
+    console.log('[data] Created data/ directory at', DATA_DIR);
   }
   if (!fs.existsSync(PROJECTS_FILE)) {
     fs.writeFileSync(PROJECTS_FILE, '[]', 'utf-8');
@@ -538,6 +571,17 @@ app.post('/api/kill-port', async (req, res) => {
   }
 });
 
+// SPA catch-all for React Router (must be AFTER all API routes)
+if (fs.existsSync(distFrontendPath)) {
+  app.get('*', (req, res) => {
+    if (!req.path.startsWith('/api')) {
+      res.sendFile(path.join(distFrontendPath, 'index.html'));
+    } else {
+      res.status(404).json({ error: 'API endpoint not found' });
+    }
+  });
+}
+
 // ---------------------------------------------------------------------------
 // Process kill helper
 // ---------------------------------------------------------------------------
@@ -618,6 +662,17 @@ process.on('SIGTERM', () => shutdown('SIGTERM'));
 
 ensureDataDir();
 
-server.listen(PORT, () => {
-  console.log(`[server] Nexus backend running on http://localhost:${PORT}`);
-});
+function startServer(port) {
+  const listenPort = port || PORT;
+  server.listen(listenPort, () => {
+    console.log(`[server] DevDash backend running on http://localhost:${listenPort}`);
+  });
+  return server;
+}
+
+// If run directly (not imported by Electron), auto-start
+if (require.main === module) {
+  startServer(PORT);
+}
+
+module.exports = { startServer, setDataDir };
